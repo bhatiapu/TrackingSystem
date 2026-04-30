@@ -15,6 +15,7 @@ import ReposPage from './pages/ReposPage';
 import DocumentsPage from './pages/DocumentsPage';
 import ReportsPage from './pages/ReportsPage';
 import ImportPage from './pages/ImportPage';
+import TeamPage from './pages/TeamPage';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30_000 } },
@@ -42,6 +43,7 @@ export default function App() {
               <Route path="board" element={<BoardPage />} />
               <Route path="backlog" element={<BacklogPage />} />
               <Route path="sprints" element={<SprintsPage />} />
+              <Route path="team" element={<TeamPage />} />
               <Route path="repos" element={<ReposPage />} />
               <Route path="documents" element={<DocumentsPage />} />
               <Route path="reports" element={<ReportsPage />} />

@@ -6,6 +6,7 @@ import { relations } from 'drizzle-orm';
 
 // ─── Enums ────────────────────────────────────────────────────────────────────
 export const userRoleEnum = pgEnum('user_role', ['admin', 'developer', 'viewer']);
+export const projectMemberRoleEnum = pgEnum('project_member_role', ['owner', 'member', 'viewer']);
 export const ticketTypeEnum = pgEnum('ticket_type', ['story', 'defect', 'task']);
 export const ticketStatusEnum = pgEnum('ticket_status', ['todo', 'in_progress', 'in_review', 'done']);
 export const priorityEnum = pgEnum('priority', ['critical', 'high', 'medium', 'low']);
@@ -35,6 +36,18 @@ export const projects = pgTable('projects', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
   ticketCounter: integer('ticket_counter').default(0).notNull(),
 });
+
+// ─── Project Members ──────────────────────────────────────────────────────────
+export const projectMembers = pgTable('project_members', {
+  id: serial('id').primaryKey(),
+  projectId: integer('project_id').notNull().references(() => projects.id, { onDelete: 'cascade' }),
+  userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  role: projectMemberRoleEnum('role').default('member').notNull(),
+  joinedAt: timestamp('joined_at').defaultNow().notNull(),
+}, (t) => ({
+  uniqIdx: uniqueIndex('project_members_unique').on(t.projectId, t.userId),
+  projectIdx: index('project_members_project_idx').on(t.projectId),
+}));
 
 // ─── Git Repos ────────────────────────────────────────────────────────────────
 export const gitRepos = pgTable('git_repos', {
@@ -147,6 +160,7 @@ export const documents = pgTable('documents', {
 // ─── Relations ────────────────────────────────────────────────────────────────
 export const usersRelations = relations(users, ({ many }) => ({
   ownedProjects: many(projects),
+  projectMemberships: many(projectMembers),
   assignedTickets: many(tickets, { relationName: 'assignee' }),
   reportedTickets: many(tickets, { relationName: 'reporter' }),
   comments: many(comments),
@@ -154,10 +168,16 @@ export const usersRelations = relations(users, ({ many }) => ({
 
 export const projectsRelations = relations(projects, ({ one, many }) => ({
   owner: one(users, { fields: [projects.ownerId], references: [users.id] }),
+  members: many(projectMembers),
   tickets: many(tickets),
   sprints: many(sprints),
   gitRepos: many(gitRepos),
   documents: many(documents),
+}));
+
+export const projectMembersRelations = relations(projectMembers, ({ one }) => ({
+  project: one(projects, { fields: [projectMembers.projectId], references: [projects.id] }),
+  user: one(users, { fields: [projectMembers.userId], references: [users.id] }),
 }));
 
 export const sprintsRelations = relations(sprints, ({ one, many }) => ({
@@ -211,3 +231,5 @@ export type Comment = typeof comments.$inferSelect;
 export type InsertComment = typeof comments.$inferInsert;
 export type ActivityLog = typeof activityLog.$inferSelect;
 export type Document = typeof documents.$inferSelect;
+export type ProjectMember = typeof projectMembers.$inferSelect;
+export type InsertProjectMember = typeof projectMembers.$inferInsert;

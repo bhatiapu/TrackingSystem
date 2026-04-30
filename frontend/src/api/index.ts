@@ -1,5 +1,5 @@
 import { api } from './client';
-import type { Project, Ticket, Sprint, GitRepo, Document, User } from '../types';
+import type { Project, Ticket, Sprint, GitRepo, Document, User, ProjectMember, ProjectMemberRole } from '../types';
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 export const authApi = {
@@ -17,7 +17,14 @@ export const projectsApi = {
   create: (data: Partial<Project>) => api.post<Project>('/projects', data),
   update: (id: number, data: Partial<Project>) => api.patch<Project>(`/projects/${id}`, data),
   delete: (id: number) => api.delete(`/projects/${id}`),
-  members: (id: number) => api.get<User[]>(`/projects/${id}/members`),
+  // Team member management
+  members: (id: number) => api.get<ProjectMember[]>(`/projects/${id}/members`),
+  addMember: (id: number, email: string, role: ProjectMemberRole) =>
+    api.post<ProjectMember>(`/projects/${id}/members`, { email, role }),
+  updateMemberRole: (id: number, userId: number, role: ProjectMemberRole) =>
+    api.patch<{ role: ProjectMemberRole }>(`/projects/${id}/members/${userId}`, { role }),
+  removeMember: (id: number, userId: number) =>
+    api.delete(`/projects/${id}/members/${userId}`),
 };
 
 // ─── Tickets ──────────────────────────────────────────────────────────────────

@@ -1,3 +1,4 @@
+export type ProjectMemberRole = 'owner' | 'member' | 'viewer';
 export type TicketType = 'story' | 'defect' | 'task';
 export type TicketStatus = 'todo' | 'in_progress' | 'in_review' | 'done';
 export type Priority = 'critical' | 'high' | 'medium' | 'low';
@@ -13,6 +14,12 @@ export interface User {
   avatarUrl?: string;
 }
 
+export interface ProjectMember extends User {
+  memberRole: ProjectMemberRole;
+  joinedAt: string;
+  memberId: number;
+}
+
 export interface Project {
   id: number;
   name: string;
@@ -20,6 +27,7 @@ export interface Project {
   key: string;
   ownerId?: number;
   owner?: User;
+  memberRole?: ProjectMemberRole;
   createdAt: string;
   ticketCounter: number;
   sprints?: Sprint[];

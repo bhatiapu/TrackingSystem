@@ -9,6 +9,7 @@ const navItems = [
   { to: 'board', label: 'Board', icon: '📋' },
   { to: 'backlog', label: 'Backlog', icon: '📝' },
   { to: 'sprints', label: 'Sprints', icon: '🏃' },
+  { to: 'team', label: 'Team', icon: '👥' },
   { to: 'repos', label: 'Repositories', icon: '🔀' },
   { to: 'documents', label: 'Documents', icon: '📄' },
   { to: 'reports', label: 'Reports', icon: '📊' },
